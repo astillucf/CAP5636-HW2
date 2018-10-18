@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -74,7 +74,28 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+
+        pacmanPosition = successorGameState.getPacmanPosition()
+        score = successorGameState.getScore()
+
+        #if PacMan would occupy the same space as a ghost, add reward if ghost is scared, and add penalty if ghost is not
+        for ghostState in newGhostStates:
+            if ghostState.getPosition() == pacmanPosition:
+                if ghostState.scaredTimer is 0:
+                    score += -100
+                else:
+                    score += 100
+
+        #add penalty to STOP action so PacMan will keep moving
+        if action == Directions.STOP:
+            score += -100
+
+        #add reward to reaching Capsule
+        if pacmanPosition in successorGameState.getCapsules():
+            score += 100
+
+        return score
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -170,4 +191,3 @@ def betterEvaluationFunction(currentGameState):
 
 # Abbreviation
 better = betterEvaluationFunction
-
