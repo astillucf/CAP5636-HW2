@@ -75,6 +75,8 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
 
+        #util.raiseNotDefined()
+
         pacmanPosition = successorGameState.getPacmanPosition()
         score = successorGameState.getScore()
 
@@ -106,6 +108,7 @@ def scoreEvaluationFunction(currentGameState):
       (not reflex agents).
     """
     return currentGameState.getScore()
+
 
 class MultiAgentSearchAgent(Agent):
     """
@@ -150,7 +153,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        #Get all possible legal actions for PacMan
+        pacmanActions = gameState.getLegalActions(0)
+
+        #Get successor states for all PacMan actions
+        successorStates = [gameState.generateSuccessor(0, action) for action in pacmanActions]
+
+        #Uses minimizer to get scores, and then return the best score (borrowed code from Reflex Agent)
+        scores = [self.minimumFunction(0, state, 1) for state in successorStates]
+        bestScore = max(scores)
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices)
+        return pacmanActions[chosenIndex]
+
+    #Minimum function
+    #If the gamestate is win/lose, or if self.depth is equal to the current depth passed in, return the gamestate
+    #Minimum function gets all of the legal actions for PacMan and all of the resulting states from those actions
+    #It then passes each state to the maximum function when the agent is a ghost
+    def minimumFunction(self, currentDepth, gameState, agentIndex):
+        if(self.depth == currentDepth or gameState.isLose() or gameState.isWin()):
+            return self.evaluationFunction(gameState)
+        minMoves = gameState.getLegalActions(agentIndex)
+        resultStates = [gameState.generateSuccessor(agentIndex, action) for action in minMoves]
+
+        if (agentIndex >= gameState.getNumAgents() - 1):
+            score = [self.maximumFunction(currentDepth + 1, state, agentIndex) for state in resultStates]
+        else:
+            score = [self.minimumFunction(currentDepth, state, agentIndex + 1) for state in resultStates]
+        return min(score)
+
+    #Maximum function
+    #If the gamestate is win/lose, or if self.depth is equal to the current depth passed in, return the gamestate
+    #Maximum function gets all of the legal actions for PacMan and all of the resulting states from those actions
+    #It then passes each state to the minimum function and returns the maximum score
+    def maximumFunction(self, currentDepth, gameState, agentIndex):
+        if(self.depth == currentDepth or gameState.isLose() or gameState.isWin()):
+            return self.evaluationFunction(gameState)
+        maxMoves = gameState.getLegalActions(0)
+        resultStates = [gameState.generateSuccessor(0, action) for action in maxMoves]
+        score = [self.minimumFunction(currentDepth, state, 1) for state in resultStates]
+        return max(score)
+
+        #util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -187,7 +232,6 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
 # Abbreviation
 better = betterEvaluationFunction
