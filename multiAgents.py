@@ -205,7 +205,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -227,14 +226,14 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         # Get successor states for all PacMan actions
         successorStates = [gameState.generateSuccessor(0, action) for action in pacmanActions]
 
-        # Uses minimizer to get scores, and then return the best score (borrowed code from Reflex Agent)
+        # Uses Expectimax to get scores, and then return the best score (borrowed code from Reflex Agent)
         scores = [self.expectimaxFunction(0, state, 1) for state in successorStates]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices)
         return pacmanActions[chosenIndex]
 
-    # Expectimax function
+    # Expectimax function - similar to the MimimumFunction from Question 2, but takes the average score instead of the minimum
     def expectimaxFunction(self, currentDepth, gameState, agentIndex):
         if (self.depth == currentDepth or gameState.isLose() or gameState.isWin()):
             return self.evaluationFunction(gameState)
@@ -247,7 +246,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             score = [self.expectimaxFunction(currentDepth, state, agentIndex + 1) for state in resultStates]
         return sum(score)/len(score)
 
-    # Maximum function
+    # Maximum function - same as in Question2
     def maximumFunction(self, currentDepth, gameState, agentIndex):
         if (self.depth == currentDepth or gameState.isLose() or gameState.isWin()):
             return self.evaluationFunction(gameState)
@@ -266,6 +265,7 @@ def betterEvaluationFunction(currentGameState):
     """
     "*** YOUR CODE HERE ***"
 
-    util.raiseNotDefined()
+    return currentGameState.getScore()
+
 # Abbreviation
 better = betterEvaluationFunction
