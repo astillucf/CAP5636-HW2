@@ -75,8 +75,6 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
 
-        #util.raiseNotDefined()
-
         pacmanPosition = successorGameState.getPacmanPosition()
         score = successorGameState.getScore()
 
@@ -222,7 +220,42 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        # Get all possible legal actions for PacMan
+        pacmanActions = gameState.getLegalActions(0)
+
+        # Get successor states for all PacMan actions
+        successorStates = [gameState.generateSuccessor(0, action) for action in pacmanActions]
+
+        # Uses minimizer to get scores, and then return the best score (borrowed code from Reflex Agent)
+        scores = [self.expectimaxFunction(0, state, 1) for state in successorStates]
+        bestScore = max(scores)
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices)
+        return pacmanActions[chosenIndex]
+
+    # Expectimax function
+    def expectimaxFunction(self, currentDepth, gameState, agentIndex):
+        if (self.depth == currentDepth or gameState.isLose() or gameState.isWin()):
+            return self.evaluationFunction(gameState)
+        minMoves = gameState.getLegalActions(agentIndex)
+        resultStates = [gameState.generateSuccessor(agentIndex, action) for action in minMoves]
+
+        if (agentIndex >= gameState.getNumAgents() - 1):
+            score = [self.maximumFunction(currentDepth + 1, state, agentIndex) for state in resultStates]
+        else:
+            score = [self.expectimaxFunction(currentDepth, state, agentIndex + 1) for state in resultStates]
+        return sum(score)/len(score)
+
+    # Maximum function
+    def maximumFunction(self, currentDepth, gameState, agentIndex):
+        if (self.depth == currentDepth or gameState.isLose() or gameState.isWin()):
+            return self.evaluationFunction(gameState)
+        maxMoves = gameState.getLegalActions(0)
+        resultStates = [gameState.generateSuccessor(0, action) for action in maxMoves]
+        score = [self.expectimaxFunction(currentDepth, state, 1) for state in resultStates]
+        return max(score)
+
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -233,5 +266,6 @@ def betterEvaluationFunction(currentGameState):
     """
     "*** YOUR CODE HERE ***"
 
+    util.raiseNotDefined()
 # Abbreviation
 better = betterEvaluationFunction
